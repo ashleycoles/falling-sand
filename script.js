@@ -54,17 +54,15 @@ function nextGeneration() {
             if (cell === 1) {
                 const isAtBottom = y >= COLS - 1;
 
-                if (!isAtBottom) {
+                if (isAtBottom) {
+                    continue
+                }
 
-                    const cellUnderIsActive = grid[y + 1][x] === 0;
-                    if (cellUnderIsActive) {
+                const cellUnderIsDead = grid[y + 1][x] === 0;
 
-
-                        gridClone[y + 1][x] = 1
-                        gridClone[y][x] = 0
-                    }
-
-
+                if (cellUnderIsDead) {
+                    gridClone[y + 1][x] = 1
+                    gridClone[y][x] = 0
                 }
             }
         }
