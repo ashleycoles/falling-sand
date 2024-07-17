@@ -47,23 +47,10 @@ function nextGeneration() {
         frame++
     }
 
-    for (let y = 1; y < ROWS; y++) {
-        for (let x = 1; x < COLS; x++) {
-            const cell = grid[y][x]
-
-            if (cell === 1) {
-                const isAtBottom = y >= COLS - 1;
-
-                if (isAtBottom) {
-                    continue
-                }
-
-                const cellUnderIsDead = grid[y + 1][x] === 0;
-
-                if (cellUnderIsDead) {
-                    gridClone[y + 1][x] = 1
-                    gridClone[y][x] = 0
-                }
+    for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+            if (grid[y][x] === 1) {
+                updateCell(y, x, grid, gridClone);
             }
         }
     }
@@ -73,6 +60,44 @@ function nextGeneration() {
     renderCanvas(ctx, grid)
     requestAnimationFrame(nextGeneration)
 }
+
+function updateCell(y, x, grid, gridClone) {
+    if (y >= ROWS - 1) return
+
+    if (grid[y + 1][x] === 0) {
+        moveCellDown(y, x, gridClone);
+    } else if (canMoveDiagonally(y, x, grid)) {
+        moveCellDiagonally(y, x, grid, gridClone);
+    }
+}
+
+function moveCellDown(y, x, gridClone) {
+    gridClone[y + 1][x] = 1;
+    gridClone[y][x] = 0;
+}
+
+function canMoveDiagonally(y, x, grid) {
+    const diagonalLeftIsDead = x > 0 && grid[y + 1][x - 1] === 0;
+    const diagonalRightIsDead = x < COLS - 1 && grid[y + 1][x + 1] === 0;
+    return diagonalLeftIsDead || diagonalRightIsDead;
+}
+
+function moveCellDiagonally(y, x, grid, gridClone) {
+    const diagonalLeftIsDead = x > 0 && grid[y + 1][x - 1] === 0;
+    const diagonalRightIsDead = x < COLS - 1 && grid[y + 1][x + 1] === 0;
+
+    if (diagonalLeftIsDead && diagonalRightIsDead) {
+        const randomSide = Math.random() < 0.5 ? -1 : 1;
+        gridClone[y + 1][x + randomSide] = 1;
+    } else if (diagonalLeftIsDead) {
+        gridClone[y + 1][x - 1] = 1;
+    } else if (diagonalRightIsDead) {
+        gridClone[y + 1][x + 1] = 1;
+    }
+
+    gridClone[y][x] = 0;
+}
+
 
 function renderCanvas(ctx, grid) {
     for (let y = 1; y < ROWS; y++) {
