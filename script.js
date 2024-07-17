@@ -1,21 +1,23 @@
-const ROWS = 200
-const COLS = 200
-const FRAME_COUNTER = false
+const ROWS = 150
+const COLS = 150
+const FRAME_COUNTER = true
 
 const canvas = document.querySelector('canvas')
 const canvasRect = canvas.getBoundingClientRect()
 const ctx = canvas.getContext('2d')
 
+canvas.width = COLS
+canvas.height = ROWS
+
 let grid = generateStartingGrid()
 
-
 let clickInterval
-let mousex
-let mousey
+let mouseX
+let mouseY
 
 canvas.addEventListener("mousemove", e => {
-    mousex = e.clientX - canvasRect.left
-    mousey = e.clientY - canvasRect.top
+    mouseX = e.clientX - canvasRect.left
+    mouseY = e.clientY - canvasRect.top
 })
 
 canvas.addEventListener('mousedown', e => {
@@ -24,26 +26,37 @@ canvas.addEventListener('mousedown', e => {
     grid[y][x] = 1
 
     clickInterval = setInterval(() => {
-       grid[mousey][mousex] = 1
+       grid[mouseY][mouseX] = 1
     }, 10)
-
 })
 
 canvas.addEventListener('mouseup', e => {
     clearInterval(clickInterval)
 })
 
-renderCanvas(ctx, grid)
-
 requestAnimationFrame(nextGeneration)
 
 let frame = 1
 
+let lastTime = performance.now();
+
+if (FRAME_COUNTER) {
+    fpsDisplay = document.querySelector('div span');
+}
+
 function nextGeneration() {
+    const currentTime = performance.now();
+    const elapsedTime = currentTime - lastTime;
+
+    if (FRAME_COUNTER && elapsedTime >= 1000) {
+        fpsDisplay.textContent = frame;
+        frame = 0;
+        lastTime = currentTime;
+    }
+
     const gridClone = grid.map(row => row.slice())
 
     if (FRAME_COUNTER) {
-        console.log(`Frame: ${frame}`)
         frame++
     }
 
