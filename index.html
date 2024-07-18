@@ -8,6 +8,9 @@
         canvas {
             background-color: black;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -16,8 +19,10 @@
 
     </canvas>
 
-    <div><span></span> FPS</div>
-
+    <div id="fpsCounter" class="hidden"><span></span> FPS</div>
+    <div>
+        <button id="fpsButton">Display FPS count</button>
+    </div>
 
 </body>
 </html>

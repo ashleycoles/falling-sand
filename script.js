@@ -1,6 +1,16 @@
 const ROWS = 150
 const COLS = 150
-const FRAME_COUNTER = true
+
+const fpsButton = document.querySelector('#fpsButton')
+const fpsDisplay = document.querySelector('div span');
+let FRAME_COUNTER = false
+
+
+fpsButton.addEventListener('click', () => {
+    FRAME_COUNTER = !FRAME_COUNTER
+    document.querySelector('#fpsCounter').classList.toggle('hidden')
+})
+
 
 const canvas = document.querySelector('canvas')
 const canvasRect = canvas.getBoundingClientRect()
@@ -39,10 +49,6 @@ requestAnimationFrame(nextGeneration)
 let frame = 1
 
 let lastTime = performance.now();
-
-if (FRAME_COUNTER) {
-    fpsDisplay = document.querySelector('div span');
-}
 
 function nextGeneration() {
     const currentTime = performance.now();
@@ -113,8 +119,8 @@ function moveCellDiagonally(y, x, grid, gridClone) {
 
 
 function renderCanvas(ctx, grid) {
-    for (let y = 1; y < ROWS; y++) {
-        for (let x = 1; x < COLS; x++) {
+    for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
             const cell = grid[y][x]
 
             if (cell === 1) {
