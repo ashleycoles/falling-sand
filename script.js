@@ -5,35 +5,42 @@ const CELL_DEAD = 0
 const CELL_FALLING = 1
 const CELL_STABLE = 2
 
-const fpsButton = document.querySelector('#fpsButton')
-const fpsDisplay = document.querySelector('div span')
-let FRAME_COUNTER = false
-
-fpsButton.addEventListener('click', () => {
-    FRAME_COUNTER = !FRAME_COUNTER
-    document.querySelector('#fpsCounter').classList.toggle('hidden')
-})
-
 const canvas = document.querySelector('canvas')
+const canvasRect = canvas.getBoundingClientRect()
+const ctx = canvas.getContext('2d')
 
 canvas.width = COLS
 canvas.height = ROWS
 
-const canvasRect = canvas.getBoundingClientRect()
-const ctx = canvas.getContext('2d')
+const fpsButton = document.querySelector('#fpsButton')
+const fpsDisplay = document.querySelector('div span')
+let FRAME_COUNTER = false
+let frame = 1
+let lastTime = performance.now()
 
-let grid = generateStartingGrid()
-
+let grid = generateInitialGrid()
 let clickInterval
 let mouseX
 let mouseY
 
-canvas.addEventListener("mousemove", e => {
+fpsButton.addEventListener('click', toggleFrameCounter)
+canvas.addEventListener("mousemove", updateMousePosition)
+canvas.addEventListener('mousedown', startDrawing)
+canvas.addEventListener('mouseup', stopDrawing)
+
+requestAnimationFrame(nextGeneration)
+
+function toggleFrameCounter() {
+    FRAME_COUNTER = !FRAME_COUNTER
+    document.querySelector('#fpsCounter').classList.toggle('hidden')
+}
+
+function updateMousePosition(e) {
     mouseX = Math.floor(e.clientX - canvasRect.left)
     mouseY = Math.floor(e.clientY - canvasRect.top)
-})
+}
 
-canvas.addEventListener('mousedown', e => {
+function startDrawing(e) {
     const x = Math.floor(e.clientX - canvasRect.left)
     const y = Math.floor(e.clientY - canvasRect.top)
     grid[y][x] = 1
@@ -41,16 +48,11 @@ canvas.addEventListener('mousedown', e => {
     clickInterval = setInterval(() => {
         grid[mouseY][mouseX] = 1
     }, 10)
-})
+}
 
-canvas.addEventListener('mouseup', e => {
+function stopDrawing() {
     clearInterval(clickInterval)
-})
-
-requestAnimationFrame(nextGeneration)
-
-let frame = 1
-let lastTime = performance.now()
+}
 
 function nextGeneration() {
     const currentTime = performance.now()
@@ -154,7 +156,7 @@ function renderCanvas(ctx, grid) {
     }
 }
 
-function generateStartingGrid() {
+function generateInitialGrid() {
     const grid = []
     for (let i = 0; i < ROWS; i++) {
         grid[i] = new Array(COLS).fill(CELL_DEAD)
