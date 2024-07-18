@@ -2,15 +2,13 @@ const ROWS = 150
 const COLS = 150
 
 const fpsButton = document.querySelector('#fpsButton')
-const fpsDisplay = document.querySelector('div span');
+const fpsDisplay = document.querySelector('div span')
 let FRAME_COUNTER = false
-
 
 fpsButton.addEventListener('click', () => {
     FRAME_COUNTER = !FRAME_COUNTER
     document.querySelector('#fpsCounter').classList.toggle('hidden')
 })
-
 
 const canvas = document.querySelector('canvas')
 const canvasRect = canvas.getBoundingClientRect()
@@ -26,17 +24,17 @@ let mouseX
 let mouseY
 
 canvas.addEventListener("mousemove", e => {
-    mouseX = e.clientX - canvasRect.left
-    mouseY = e.clientY - canvasRect.top
+    mouseX = Math.floor(e.clientX - canvasRect.left)
+    mouseY = Math.floor(e.clientY - canvasRect.top)
 })
 
 canvas.addEventListener('mousedown', e => {
-    const x = e.clientX - canvasRect.left
-    const y = e.clientY - canvasRect.top
+    const x = Math.floor(e.clientX - canvasRect.left);
+    const y = Math.floor(e.clientY - canvasRect.top);
     grid[y][x] = 1
 
     clickInterval = setInterval(() => {
-       grid[mouseY][mouseX] = 1
+        grid[mouseY][mouseX] = 1
     }, 10)
 })
 
@@ -47,17 +45,16 @@ canvas.addEventListener('mouseup', e => {
 requestAnimationFrame(nextGeneration)
 
 let frame = 1
-
-let lastTime = performance.now();
+let lastTime = performance.now()
 
 function nextGeneration() {
-    const currentTime = performance.now();
-    const elapsedTime = currentTime - lastTime;
+    const currentTime = performance.now()
+    const elapsedTime = currentTime - lastTime
 
     if (FRAME_COUNTER && elapsedTime >= 1000) {
-        fpsDisplay.textContent = frame;
-        frame = 0;
-        lastTime = currentTime;
+        fpsDisplay.textContent = frame
+        frame = 0
+        lastTime = currentTime
     }
 
     const gridClone = grid.map(row => row.slice())
@@ -66,10 +63,10 @@ function nextGeneration() {
         frame++
     }
 
-    for (let y = 0; y < ROWS; y++) {
+    for (let y = ROWS - 1; y >= 0; y--) {
         for (let x = 0; x < COLS; x++) {
             if (grid[y][x] === 1) {
-                updateCell(y, x, grid, gridClone);
+                updateCell(y, x, grid, gridClone)
             }
         }
     }
@@ -81,12 +78,20 @@ function nextGeneration() {
 }
 
 function updateCell(y, x, grid, gridClone) {
-    if (y >= ROWS - 1) return
+    if (y >= ROWS - 1) {
+        gridClone[y][x] = 2
+        return
+    }
 
     if (grid[y + 1][x] === 0) {
         moveCellDown(y, x, gridClone);
-    } else if (canMoveDiagonally(y, x, grid)) {
-        moveCellDiagonally(y, x, grid, gridClone);
+    } else if (grid[y + 1][x] === 1) {
+        gridClone[y][x] = 1
+    } else if (grid[y + 1][x] === 2) {
+        gridClone[y][x] = 2
+        if (canMoveDiagonally(y, x, grid)) {
+            moveCellDiagonally(y, x, grid, gridClone)
+        }
     }
 }
 
@@ -117,7 +122,6 @@ function moveCellDiagonally(y, x, grid, gridClone) {
     gridClone[y][x] = 0;
 }
 
-
 function renderCanvas(ctx, grid) {
     for (let y = 0; y < ROWS; y++) {
         for (let x = 0; x < COLS; x++) {
@@ -125,6 +129,9 @@ function renderCanvas(ctx, grid) {
 
             if (cell === 1) {
                 ctx.fillStyle = '#00ff00'
+                ctx.fillRect(x, y, 1, 1)
+            } else if (cell === 2) {
+                ctx.fillStyle = '#007700'
                 ctx.fillRect(x, y, 1, 1)
             } else {
                 ctx.fillStyle = '#000'
