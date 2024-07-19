@@ -5,6 +5,18 @@ const CELL_DEAD = 0
 const CELL_FALLING = 1
 const CELL_STABLE = 2
 
+const COLOURS = [
+    '#EC058E',
+    '#62BBC1',
+    '#FFFBFC',
+    '#30332E',
+    '#EAF27C'
+]
+
+let selectedColour = '#EC058E'
+
+colourPicker()
+
 const canvas = document.querySelector('canvas')
 const canvasRect = canvas.getBoundingClientRect()
 const ctx = canvas.getContext('2d')
@@ -30,6 +42,20 @@ canvas.addEventListener('mouseup', stopDrawing)
 
 requestAnimationFrame(nextGeneration)
 
+function colourPicker() {
+    const target = document.querySelector('#colourPicker')
+
+    COLOURS.forEach(colour => {
+        target.innerHTML += `<button class="colour" style="background-color: ${colour}" data-colour="${colour}"></button>`
+    })
+
+    const colourPickers = document.querySelectorAll('.colour')
+
+    colourPickers.forEach(colour => {
+        colour.addEventListener('click', e => selectedColour = e.target.dataset.colour)
+    })
+}
+
 function toggleFrameCounter() {
     FRAME_COUNTER = !FRAME_COUNTER
     document.querySelector('#fpsCounter').classList.toggle('hidden')
@@ -43,10 +69,12 @@ function updateMousePosition(e) {
 function startDrawing(e) {
     const x = Math.floor(e.clientX - canvasRect.left)
     const y = Math.floor(e.clientY - canvasRect.top)
-    grid[y][x].status = 1
+    grid[y][x].status = CELL_FALLING
+    grid[y][x].colour = selectedColour
 
     clickInterval = setInterval(() => {
         grid[mouseY][mouseX].status = 1
+        grid[mouseY][mouseX].colour = selectedColour
     }, 10)
 }
 
@@ -112,7 +140,9 @@ function updateCell(y, x, grid, gridClone) {
 
 function moveCellDown(y, x, gridClone) {
     gridClone[y + 1][x].status = CELL_FALLING
+    gridClone[y + 1][x].colour = gridClone[y][x].colour
     gridClone[y][x].status = CELL_DEAD
+    gridClone[y][x].colour = '#000000'
 }
 
 function canMoveDiagonally(y, x, grid) {
@@ -128,30 +158,25 @@ function moveCellDiagonally(y, x, grid, gridClone) {
     if (diagonalLeftIsDead && diagonalRightIsDead) {
         const randomSide = Math.random() < 0.5 ? -1 : 1
         gridClone[y + 1][x + randomSide].status = CELL_FALLING
+        gridClone[y + 1][x + randomSide].colour = gridClone[y][x].colour
     } else if (diagonalLeftIsDead) {
         gridClone[y + 1][x - 1].status = CELL_FALLING
+        gridClone[y + 1][x - 1].colour = gridClone[y][x].colour
     } else if (diagonalRightIsDead) {
         gridClone[y + 1][x + 1].status = CELL_FALLING
+        gridClone[y + 1][x + 1].colour = gridClone[y][x].colour
     }
 
     gridClone[y][x].status = CELL_DEAD
+    gridClone[y][x].colour = '#000000'
 }
 
 function renderCanvas(ctx, grid) {
     for (let y = 0; y < ROWS; y++) {
         for (let x = 0; x < COLS; x++) {
             const cell = grid[y][x]
-
-            if (cell.status === CELL_FALLING) {
-                ctx.fillStyle = '#00ff00'
-                ctx.fillRect(x, y, 1, 1)
-            } else if (cell.status === CELL_STABLE) {
-                ctx.fillStyle = '#007700'
-                ctx.fillRect(x, y, 1, 1)
-            } else {
-                ctx.fillStyle = '#000'
-                ctx.fillRect(x, y, 1, 1)
-            }
+            ctx.fillStyle = cell.colour
+            ctx.fillRect(x, y, 1, 1)
         }
     }
 }
