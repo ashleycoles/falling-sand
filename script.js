@@ -1,5 +1,5 @@
-const ROWS = 150
-const COLS = 150
+const ROWS = 300
+const COLS = 300
 
 const CELL_DEAD = 0
 const CELL_FALLING = 1
@@ -10,7 +10,11 @@ const COLOURS = [
     '#62BBC1',
     '#FFFBFC',
     '#30332E',
-    '#EAF27C'
+    '#EAF27C',
+    '#832232',
+    '#E39774',
+    '#0075C4',
+    '#D65108'
 ]
 
 let selectedColour = '#EC058E'
