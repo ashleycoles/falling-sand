@@ -191,13 +191,13 @@ function renderCanvas(ctx, grid) {
 }
 
 function generateInitialGrid() {
-    const grid = [];
+    const grid = []
     for (let i = 0; i < ROWS; i++) {
-        const row = [];
+        const row = []
         for (let j = 0; j < COLS; j++) {
-            row.push({ status: CELL_DEAD, colour: '#000000' });
+            row.push({ status: CELL_DEAD, colour: '#000000' })
         }
-        grid.push(row);
+        grid.push(row)
     }
-    return grid;
+    return grid
 }
