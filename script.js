@@ -43,10 +43,10 @@ function updateMousePosition(e) {
 function startDrawing(e) {
     const x = Math.floor(e.clientX - canvasRect.left)
     const y = Math.floor(e.clientY - canvasRect.top)
-    grid[y][x] = 1
+    grid[y][x].status = 1
 
     clickInterval = setInterval(() => {
-        grid[mouseY][mouseX] = 1
+        grid[mouseY][mouseX].status = 1
     }, 10)
 }
 
@@ -64,7 +64,7 @@ function nextGeneration() {
         lastTime = currentTime
     }
 
-    const gridClone = grid.map(row => row.slice())
+    const gridClone = grid.map(row => row.map(cell => ({ ...cell })));
 
     if (FRAME_COUNTER) {
         frame++
@@ -72,7 +72,7 @@ function nextGeneration() {
 
     for (let y = 0; y < ROWS; y++) {
         for (let x = 0; x < COLS; x++) {
-            const cellIsFalling = grid[y][x] === CELL_FALLING
+            const cellIsFalling = grid[y][x].status === CELL_FALLING
 
             if (cellIsFalling) {
                 updateCell(y, x, grid, gridClone)
@@ -90,20 +90,20 @@ function updateCell(y, x, grid, gridClone) {
     const cellIsAtBottom = y >= ROWS - 1
 
     if (cellIsAtBottom) {
-        gridClone[y][x] = CELL_STABLE
+        gridClone[y][x].status = CELL_STABLE
         return
     }
 
-    const cellUnderIsDead = grid[y + 1][x] === CELL_DEAD
-    const cellUnderIsFalling = grid[y + 1][x] === CELL_FALLING
-    const cellUnderIsStable = grid[y + 1][x] === CELL_STABLE
+    const cellUnderIsDead = grid[y + 1][x].status === CELL_DEAD
+    const cellUnderIsFalling = grid[y + 1][x].status === CELL_FALLING
+    const cellUnderIsStable = grid[y + 1][x].status === CELL_STABLE
 
     if (cellUnderIsDead) {
         moveCellDown(y, x, gridClone)
     } else if (cellUnderIsFalling) {
-        gridClone[y][x] = CELL_FALLING
+        gridClone[y][x].status = CELL_FALLING
     } else if (cellUnderIsStable) {
-        gridClone[y][x] = CELL_STABLE
+        gridClone[y][x].status = CELL_STABLE
         if (canMoveDiagonally(y, x, grid)) {
             moveCellDiagonally(y, x, grid, gridClone)
         }
@@ -111,30 +111,30 @@ function updateCell(y, x, grid, gridClone) {
 }
 
 function moveCellDown(y, x, gridClone) {
-    gridClone[y + 1][x] = CELL_FALLING
-    gridClone[y][x] = CELL_DEAD
+    gridClone[y + 1][x].status = CELL_FALLING
+    gridClone[y][x].status = CELL_DEAD
 }
 
 function canMoveDiagonally(y, x, grid) {
-    const diagonalLeftIsDead = x > 0 && grid[y + 1][x - 1] === CELL_DEAD
-    const diagonalRightIsDead = x < COLS - 1 && grid[y + 1][x + 1] === CELL_DEAD
+    const diagonalLeftIsDead = x > 0 && grid[y + 1][x - 1].status === CELL_DEAD
+    const diagonalRightIsDead = x < COLS - 1 && grid[y + 1][x + 1].status === CELL_DEAD
     return diagonalLeftIsDead || diagonalRightIsDead
 }
 
 function moveCellDiagonally(y, x, grid, gridClone) {
-    const diagonalLeftIsDead = x > 0 && grid[y + 1][x - 1] === CELL_DEAD
-    const diagonalRightIsDead = x < COLS - 1 && grid[y + 1][x + 1] === CELL_DEAD
+    const diagonalLeftIsDead = x > 0 && grid[y + 1][x - 1].status === CELL_DEAD
+    const diagonalRightIsDead = x < COLS - 1 && grid[y + 1][x + 1].status === CELL_DEAD
 
     if (diagonalLeftIsDead && diagonalRightIsDead) {
         const randomSide = Math.random() < 0.5 ? -1 : 1
-        gridClone[y + 1][x + randomSide] = CELL_FALLING
+        gridClone[y + 1][x + randomSide].status = CELL_FALLING
     } else if (diagonalLeftIsDead) {
-        gridClone[y + 1][x - 1] = CELL_FALLING
+        gridClone[y + 1][x - 1].status = CELL_FALLING
     } else if (diagonalRightIsDead) {
-        gridClone[y + 1][x + 1] = CELL_FALLING
+        gridClone[y + 1][x + 1].status = CELL_FALLING
     }
 
-    gridClone[y][x] = CELL_DEAD
+    gridClone[y][x].status = CELL_DEAD
 }
 
 function renderCanvas(ctx, grid) {
@@ -142,10 +142,10 @@ function renderCanvas(ctx, grid) {
         for (let x = 0; x < COLS; x++) {
             const cell = grid[y][x]
 
-            if (cell === CELL_FALLING) {
+            if (cell.status === CELL_FALLING) {
                 ctx.fillStyle = '#00ff00'
                 ctx.fillRect(x, y, 1, 1)
-            } else if (cell === CELL_STABLE) {
+            } else if (cell.status === CELL_STABLE) {
                 ctx.fillStyle = '#007700'
                 ctx.fillRect(x, y, 1, 1)
             } else {
@@ -157,9 +157,13 @@ function renderCanvas(ctx, grid) {
 }
 
 function generateInitialGrid() {
-    const grid = []
+    const grid = [];
     for (let i = 0; i < ROWS; i++) {
-        grid[i] = new Array(COLS).fill(CELL_DEAD)
+        const row = [];
+        for (let j = 0; j < COLS; j++) {
+            row.push({ status: CELL_DEAD, colour: '#000000' });
+        }
+        grid.push(row);
     }
-    return grid
+    return grid;
 }
