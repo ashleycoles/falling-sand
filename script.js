@@ -52,7 +52,12 @@ function colourPicker() {
     const colourPickers = document.querySelectorAll('.colour')
 
     colourPickers.forEach(colour => {
-        colour.addEventListener('click', e => selectedColour = e.target.dataset.colour)
+        colour.addEventListener('click', e => {
+            colourPickers.forEach(picker => picker.classList.remove('active'))
+
+            selectedColour = e.target.dataset.colour
+            e.target.classList.add('active')
+        })
     })
 }
 
