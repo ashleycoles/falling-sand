@@ -1,5 +1,5 @@
-const ROWS = 300
-const COLS = 300
+const ROWS = 150
+const COLS = 150
 
 const CELL_DEAD = 0
 const CELL_FALLING = 1
